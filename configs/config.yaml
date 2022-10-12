@@ -1,0 +1,6 @@
+redtnode: "http://15.236.0.91:22000"
+
+server:
+  listenAddress: ":3000"
+  staticDir: "back/www"
+  templateDir: "back/views"
