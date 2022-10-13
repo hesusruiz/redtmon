@@ -1,13 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"github.com/labstack/gommon/log"
 
 	"github.com/hesusruiz/redtmon/httpserver"
 	"github.com/hesusruiz/redtmon/redt"
@@ -72,15 +73,28 @@ func main() {
 		},
 	}
 
+	// The TEST
+	testCMD := &cli.Command{
+		Name:  "test",
+		Usage: "test several things",
+
+		Action: func(c *cli.Context) error {
+			cfg := readConfiguration(c)
+			// url := cfg.String("redtnode")
+			readValidatorListFromGithub(cfg)
+			return nil
+		},
+	}
+
 	app.Commands = []*cli.Command{
 		displayPeersCMD,
+		testCMD,
 	}
 
 	// Run the application
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Error(err)
-		os.Exit(1)
+		zlog.Fatal().Err(err).Msg("")
 	}
 
 }
@@ -133,4 +147,51 @@ func readConfiguration(c *cli.Context) *yaml.YAML {
 		os.Exit(1)
 	}
 	return cfg
+}
+
+func readValidatorListFromGithub(cgf *yaml.YAML) []*redt.NodeInfo {
+
+	// Read the raw file, with one line per Validator
+	// Each line is like: VAL_IN2 enode://0ede782b7ce6...2b8e64059adc03@15.236.56.133:21000?discport=0
+	// Where the dots are an ellipsis to make the line shorter
+	resp, err := http.Get("https://raw.githubusercontent.com/alastria/alastria-node-quorum-directory/main/directory.val")
+	if err != nil {
+		zlog.Fatal().Err(err).Msg("")
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		zlog.Fatal().Err(err).Msg("")
+	}
+
+	// Process each line
+	tokens := bytes.Fields(body)
+	num_tokens := len(tokens)
+
+	// Some sanity checks
+	// The number of tokens should be even (and greater than zero)
+	if num_tokens <= 0 || num_tokens%2 != 0 {
+		zlog.Panic().Msgf("invalid number of tokens: %v", len(tokens))
+
+	}
+
+	var enodes = make([]*redt.NodeInfo, num_tokens/2)
+	for i, t := range tokens {
+		if i%2 == 0 {
+			enode := &redt.NodeInfo{}
+			enodes[i/2] = enode
+			t = bytes.TrimPrefix(t, []byte("VAL_"))
+			enodes[i/2].Operator = string(t)
+		} else {
+			// The odd tokens should start with "enode://"
+			if bytes.HasPrefix(t, []byte("enode://")) {
+				enodes[i/2].Enode = string(t)
+			} else {
+				fmt.Println("caca")
+			}
+		}
+	}
+
+	return enodes
+
 }

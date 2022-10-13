@@ -2,14 +2,14 @@ package httpserver
 
 import (
 	"bytes"
-	"fmt"
+	"context"
 	"text/template"
+	"time"
 
 	ethertypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
-	"github.com/hesusruiz/redtmon/client"
-	"github.com/hesusruiz/redtmon/types"
+	"github.com/hesusruiz/redtmon/redt"
 	zlog "github.com/rs/zerolog/log"
 )
 
@@ -38,24 +38,22 @@ func (srv *Server) WSHandler(c *websocket.Conn) {
 	// Prepare the template for the HTML Table with the block info
 	t := template.Must(template.New("table.html").Parse(tableHTML))
 
-	// Connect to the Blockchain node at the specified URL
-	redtNode := srv.cfg.String("redtnode")
-	fmt.Println("Target Node URL", redtNode)
-	qc, err := client.NewQuorumClient(redtNode)
-	if err != nil {
-		zlog.Error().Err(err).Msgf("connecting to %v", redtNode)
-		return
-	}
-	defer qc.Stop()
+	// We are going to call the Geth API, with a timeout of 30 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
 
 	// Subscribe to receive notifications when new blocks are added to the blockchain
 	// Each notification is received as a Header in the inputCh channel
-	inputCh := make(chan types.RawHeader)
-	err = qc.SubscribeChainHead(inputCh)
+	notificationCh := make(chan *ethertypes.Header)
+	subscription, err := srv.rt.EthClient().SubscribeNewHead(ctx, notificationCh)
 	if err != nil {
-		zlog.Err(err).Msgf("connecting to %v", redtNode)
+		zlog.Err(err).Msgf("subscribing")
 		return
 	}
+	defer subscription.Unsubscribe()
+
+	// Initialize statistics for this client
+	stats := redt.NewStatistics(srv.rt.AllValidators(), srv.rt.Validators())
 
 	// Initialize the timestamp to calculate elapsed time between blocks
 	latestTimestamp := uint64(0)
@@ -70,17 +68,9 @@ func (srv *Server) WSHandler(c *websocket.Conn) {
 	for {
 
 		// We block here until a new header is received on the channel
-		rawheader := <-inputCh
+		currentHeader := <-notificationCh
 
-		var currentHeader *ethertypes.Header
-
-		// Get the full header, because the raw one does not have the info we need
-		currentHeader, err = srv.rt.HeaderByNumber(int64(rawheader.Number))
-		if err != nil {
-			// Log the error and retry with next block
-			zlog.Err(err).Msgf("connecting to %v", redtNode)
-			return
-		}
+		zlog.Info().Int64("number", currentHeader.Number.Int64()).Msg("new block")
 
 		if isFirst {
 			// Do not display, we just get its timestamp to start statistics
@@ -92,20 +82,21 @@ func (srv *Server) WSHandler(c *websocket.Conn) {
 		}
 
 		// Get the signer data and accumulated statistics
-		data, latestTimestamp = srv.rt.SignersForHeader(currentHeader, latestTimestamp)
+		// data, latestTimestamp = srv.rt.StatisticsForHeader(currentHeader, latestTimestamp)
+		data, latestTimestamp = stats.StatisticsForHeader(currentHeader, latestTimestamp)
 
 		// Format the data into an HTML table
 		rendered.Reset()
 		err = t.ExecuteTemplate(&rendered, "table.html", data)
 		if err != nil {
-			zlog.Err(err).Msgf("connecting to %v", redtNode)
+			zlog.Err(err).Msg("executing template")
 			return
 		}
 
 		// Send the HTML table to the client via the WebSocket connection
 		err = c.WriteMessage(websocket.TextMessage, rendered.Bytes())
 		if err != nil {
-			zlog.Err(err).Msgf("connecting to %v", redtNode)
+			zlog.Err(err).Msgf("sending to browser websocket")
 			return
 		}
 
