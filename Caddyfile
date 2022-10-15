@@ -1,0 +1,7 @@
+localhost
+
+route /ws {
+    redtnode "ws://127.0.0.1:22001"
+}
+
+file_server 

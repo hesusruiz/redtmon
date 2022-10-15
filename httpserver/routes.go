@@ -27,6 +27,7 @@ func (srv *Server) setupRoutes() {
 
 }
 
+// HandleHome serves the initial home page that enables users to view the blockchain state
 func HandleHome(c *fiber.Ctx) error {
 	c.Set("Content-Type", "text/html")
 	return c.SendString(indexHTML)

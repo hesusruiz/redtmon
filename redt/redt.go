@@ -57,7 +57,6 @@ type RedTNode struct {
 	headerCache   *lrucache.Cache
 	cli           *ethclient.Client
 	rpccli        *rpc.Client
-	ctx           context.Context
 	valSet        []common.Address
 	allValidators map[common.Address]*NodeInfo
 }
@@ -74,7 +73,6 @@ func NewRedTNode(url string) (*RedTNode, error) {
 	rt := &RedTNode{}
 	rt.rpccli = rpccli
 	rt.cli = ethclient.NewClient(rpccli)
-	rt.ctx = context.Background()
 
 	// Load the current Validator set from the blockchain node as it is used in the execution of the consensus algorithm.
 	// It has to be refreshed in case a new Validator is added or removed (an infrequent event)
@@ -113,6 +111,10 @@ func NewRedTNode(url string) (*RedTNode, error) {
 	}
 
 	return rt, nil
+}
+
+func (rt *RedTNode) Close() {
+	rt.cli.Close()
 }
 
 func (rt *RedTNode) EthClient() *ethclient.Client {
