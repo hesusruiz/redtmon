@@ -1,6 +1,6 @@
-package redtmon
+package monredt
 
-var tableHTMLNew = `
+var tableHTML = `
 <div class="w3-container">
     <div>
         <p>Block: {{.BlockNumber}} ({{.Elapsed}} sec) {{.Timestamp}}</p>
@@ -49,38 +49,6 @@ var tableHTMLNew = `
     </div>
     <div>
         <p>Next: {{.NextProposerName}}</p>
-    </div>
-</div>
-`
-
-var tableHTML = `
-<div class="w3-container">
-    <div>
-        <p>Block: {{.number}} ({{.elapsed}} sec) {{.timestamp}}</p>
-        <p>GasLimit: {{.gasLimit}} GasUsed: {{.gasUsed}}</p>
-    </div>
-    <div class="w3-responsive w3-card-4">
-        <table class="w3-table w3-striped w3-bordered">
-            <thead>
-                <tr class="w3-theme">
-                    <th>Author</th>
-                    <th>Signer</th>
-                    <th>Name</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .signers }}
-                <tr>
-                    <td>{{.authorCount}}</td>
-                    <td>{{.signerCount}}</td>
-                    <td>{{.operator}}</td>
-                </tr>
-                {{end}}
-            </tbody>
-        </table>
-    </div>
-    <div>
-        <p>Next: {{.nextProposerOperator}}</p>
     </div>
 </div>
 `

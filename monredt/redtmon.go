@@ -1,4 +1,4 @@
-package redtmon
+package monredt
 
 import (
 	"bytes"
@@ -52,7 +52,9 @@ func (m *Middleware) Provision(ctx caddy.Context) (err error) {
 	m.logger = ctx.Logger()
 
 	// Prepare the template for the HTML Table with the block info
-	m.t = template.Must(template.New("table.html").Parse(tableHTMLNew))
+	m.t = template.Must(template.New("table.html").Parse(tableHTML))
+
+	m.logger.Info("connecting to RedT node at", zap.String("url", m.NodeURL))
 
 	// Connect to the RedT node
 	m.rt, err = redt.NewRedTNode(m.NodeURL)
@@ -67,7 +69,7 @@ func (m *Middleware) Provision(ctx caddy.Context) (err error) {
 		m.logger.Error("connecting to RedT node")
 		return err
 	}
-	m.logger.Info("connected to node", zap.String("name", thisNode.Name))
+	m.logger.Info("connected to RedT node", zap.String("name", thisNode.Name))
 
 	return nil
 }
@@ -76,7 +78,9 @@ func (m *Middleware) Provision(ctx caddy.Context) (err error) {
 func (m *Middleware) Cleanup() error {
 	// Close the connection to the RedT blockchain node
 	m.logger.Info("closing connection to RedT node")
-	m.rt.Close()
+	if m.rt != nil {
+		m.rt.Close()
+	}
 	return nil
 }
 
