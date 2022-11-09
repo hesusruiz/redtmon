@@ -4,7 +4,7 @@ localhost
 root * www
 
 route /ws {
-        redtnode "ws://15.236.0.91:22001"
+        redtnode "ws://127.0.0.1:22001"
 }
 
 file_server
