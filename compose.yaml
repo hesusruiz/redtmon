@@ -2,7 +2,7 @@
 name: redtmon
 services:
   redtmon:
-    image: hesusruiz/redtmon:v0.1
+    image: hesusruiz/redtmon:v0.4
     restart: unless-stopped
     container_name: "redtmon"
 

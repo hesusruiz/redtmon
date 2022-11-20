@@ -1,53 +1,121 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Alastria RedT Validator activity</title>
     <meta charset="UTF-8">
+    <title>Alastria RedT Validator activity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-indigo.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+    <style>
+        .loader {
+            margin: auto;
+            margin-top: 100px;
+            z-index: 1;
+            width: 100px;
+            height: 100px;
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #919597;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @-webkit-keyframes spin {
+            0% {
+                -webkit-transform: rotate(0deg);
+            }
+
+            100% {
+                -webkit-transform: rotate(360deg);
+            }
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+
+        .ala-color {
+            color: white;
+            background-color: #010326;
+        }
+
+        .menu-bar {
+            width: 100%;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .menu-logo {
+            height: 100%;
+            max-height: 45px;
+            display: block;
+            float: left;
+        }
+
+        .menu-text {
+            display: block;
+            float: left;
+            height: 45px;
+            line-height: 45px;
+            font-size: 22px;
+            /* font-weight: 300; */
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+        }
+    </style>
 </head>
 
 <body>
 
-    <header class="w3-container w3-theme">
-        <h3>Alastria RedT Validators</h3>
-    </header>
+    <nav class="menu-bar ala-color">
+        <img class="menu-logo" src="alastria_web.png" alt="Logo">
+        <div class="menu-text"><span>RedT Validators</span></div>
+    </nav>
 
-    <p id="mytable"></p>
+    <div id="mytable">
+        <div class="loader"></div>
+    </div>
 
     <script>
-      var loc = window.location;
-      var uri = 'ws:';
-  
-      if (loc.protocol === 'https:') {
-        uri = 'wss:';
-      }
-      uri += '//' + loc.host;
-      uri += loc.pathname + 'ws';
-  
-      ws = new WebSocket(uri)
-  
-      ws.onopen = function() {
-        console.log('Connected')
-      }
-  
-      ws.onmessage = function(evt) {
-        var tt = document.getElementById('mytable')
-        tt.innerHTML = evt.data
-      }
+        var loc = window.location;
+        var uri = 'ws:';
 
-      ws.onclose = function(evt) {
-        location.reload()
-      }
+        if (loc.protocol === 'https:') {
+            uri = 'wss:';
+        }
+        uri = uri + '//' + loc.host;
+        uri = uri + '/ws';
 
-      ws.onerror = function(evt) {
-        location.reload()
-      }
+        ws = new WebSocket(uri)
+
+        ws.onopen = function () {
+            console.log('Connected')
+        }
+
+        ws.onmessage = function (evt) {
+            var tt = document.getElementById('mytable')
+            tt.innerHTML = evt.data
+        }
+
+        ws.onclose = function (evt) {
+            console.log('WebSocket error: ', event);
+            location.reload()
+        }
+
+        ws.onerror = function (evt) {
+            location.reload()
+        }
 
     </script>
 
 </body>
+
 </html>

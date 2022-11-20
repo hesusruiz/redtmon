@@ -23,10 +23,10 @@ func init() {
 	httpcaddyfile.RegisterHandlerDirective("redtnode", parseCaddyfile)
 }
 
-// Middleware implements an HTTP handler that writes the
-// visitor's IP address to a file or stream.
+// Middleware implements an HTTP handler that serves the WebSocket
+// so the client is notified for each block in RedT.
 type Middleware struct {
-	// The location of the configuration file
+	// The location of the Geth node
 	NodeURL string `json:"nodeurl,omitempty"`
 
 	// The connection to the RedT blockchain node
