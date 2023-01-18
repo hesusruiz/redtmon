@@ -125,6 +125,23 @@ func (rt *RedTNode) RpcClient() *rpc.Client {
 	return rt.rpccli
 }
 
+// BlockByHash returns the given full block.
+func (rt *RedTNode) BlockByHash(blockhash common.Hash) (*ethertypes.Block, error) {
+
+	// We are going to call the Geth API, with a timeout of 30 seconds
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// Retrieve the header from the node (may be remote)
+	block, err := rt.cli.BlockByHash(ctx, blockhash)
+	if err != nil {
+		return nil, err
+	}
+
+	return block, nil
+
+}
+
 // HeaderByNumber retrieves a header from the internal cache of from the blockchain node if cache miss
 func (rt *RedTNode) HeaderByNumber(number int64) (*ethertypes.Header, error) {
 
@@ -143,8 +160,7 @@ func (rt *RedTNode) HeaderByNumber(number int64) (*ethertypes.Header, error) {
 
 	// Retrieve the header from the node (may be remote)
 	head, err := rt.cli.HeaderByNumber(ctx, big.NewInt(number))
-	if err == nil && head == nil {
-		err = ethereum.NotFound
+	if err != nil {
 		return nil, err
 	}
 

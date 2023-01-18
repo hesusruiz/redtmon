@@ -1,6 +1,0 @@
-redtnode: "ws://15.236.0.91:22001"
-
-server:
-  listenAddress: ":3000"
-  cors:
-    enabled: "true"

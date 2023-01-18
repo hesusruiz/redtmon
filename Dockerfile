@@ -37,9 +37,11 @@ COPY --from=builder /usr/src/redtmon/caddy /usr/bin/caddy
 
 # Use our Caddyfile
 # If the RedT node websocket RPC is available locally at "ws://127.0.0.1:22001",
-# there is no need to modify it
+# there is no need to modify it.
+# Otherwise, modify it to your liking before building the image.
+# You can use anything a standard version of Caddy can do.
 COPY --from=builder /usr/src/redtmon/Caddyfile /etc/caddy/Caddyfile
 
 # Copy the HTML files to the /srv/www directory for the Caddy file server
-# This can be modified in the Caddyfile
+# If you modify the Caddyfile, make sure you also make the corresponding modification here.
 COPY --from=builder /usr/src/redtmon/www /srv/www

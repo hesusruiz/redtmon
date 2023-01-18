@@ -1,10 +1,19 @@
+# This is a standard Caddyfile with the exception of the redtnode directive, specified
+# in a route block. You can use any Caddy feature that you want.
 localhost
 
 # Set this path to your site's directory.
 root * www
 
+# This is the default route that will be upgraded to WebSocket for serving blockchain data.
+# The actual route is specified also in the index.html file in the www directory.
 route /ws {
+        # The directive expects the WebSocket address of a blockchain node.
+        # Ideally, this is a node running in the same machine, for security and performance reasons,
+        # but it could be remote. However, take into account that there is no authentication unless you
+        # configure it explicitly with whatever mechanism you want.
         redtnode "ws://127.0.0.1:22001"
 }
 
+# The standard Caddy file server, serving (at least) the index.html file from the site directory
 file_server

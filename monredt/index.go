@@ -3,8 +3,9 @@ package monredt
 var tableHTML = `
 <div class="w3-container">
     <div>
-        <p>Block: {{.BlockNumber}} ({{.Elapsed}} sec) {{.Timestamp}}</p>
-        <p>GasLimit: {{.GasLimit}} GasUsed: {{.GasUsed}}</p>
+        <p>Block: {{.BlockNumber}} ({{.Elapsed}} sec) {{.Timestamp}}</br>
+        Gas: {{.GasUsed}} of {{.GasLimit}}</br>
+        Txs: {{.BlockNumTxs}} Total: {{.AllNumTxs}} </p>
     </div>
     <div class="w3-responsive w3-card-4">
         <table class="w3-table w3-striped w3-bordered">

@@ -122,8 +122,12 @@ var (
 
 var upgrader = websocket.Upgrader{}
 
+// WShandler is the WebSockets HTTP handler that upgrades the connection to
+// websocket and starts looping receiving headers from the blockchain node and
+// sending to the client the updated statistics.
 func (m Middleware) WShandler(w http.ResponseWriter, r *http.Request) error {
 
+	// Upgrade the HTTP request to a WebSocket connection
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		m.logger.Error("upgrading to WebSockets", zap.Error(err))
@@ -152,8 +156,15 @@ func (m Middleware) WShandler(w http.ResponseWriter, r *http.Request) error {
 	currentHeader := <-notificationCh
 	m.logger.Info("new block", zap.Int64("number", currentHeader.Number.Int64()))
 
+	// Get the full block
+	currentFullBlock, err := m.rt.BlockByHash(currentHeader.Hash())
+	if err != nil {
+		m.logger.Error("requesting full block", zap.Error(err))
+		return err
+	}
+
 	// Initialize statistics with this block
-	stats.StatisticsForHeaderNew(currentHeader)
+	stats.StatisticsForFullBlock(currentFullBlock)
 
 	// Loop forever until an error (probably the client disconnects)
 	var rendered bytes.Buffer
@@ -164,8 +175,15 @@ func (m Middleware) WShandler(w http.ResponseWriter, r *http.Request) error {
 		currentHeader := <-notificationCh
 		m.logger.Info("new block", zap.Int64("number", currentHeader.Number.Int64()))
 
+		// Get the full block
+		currentFullBlock, err := m.rt.BlockByHash(currentHeader.Hash())
+		if err != nil {
+			m.logger.Error("requesting full block", zap.Error(err))
+			return err
+		}
+
 		// Get the signer data and accumulated statistics
-		data := stats.StatisticsForHeaderNew(currentHeader)
+		data := stats.StatisticsForFullBlock(currentFullBlock)
 
 		// Format the data into an HTML table
 		rendered.Reset()
