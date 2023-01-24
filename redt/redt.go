@@ -132,7 +132,7 @@ func (rt *RedTNode) BlockByHash(blockhash common.Hash) (*ethertypes.Block, error
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// Retrieve the header from the node (may be remote)
+	// Retrieve the block from the node (may be remote)
 	block, err := rt.cli.BlockByHash(ctx, blockhash)
 	if err != nil {
 		return nil, err

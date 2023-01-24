@@ -4,7 +4,7 @@ var tableHTML = `
 <div class="w3-container">
     <div>
         <p>Block: {{.BlockNumber}} ({{.Elapsed}} sec) {{.Timestamp}}</br>
-        Gas: {{.GasUsed}} of {{.GasLimit}}</br>
+        Gas used: {{.GasUsedH}} of {{.GasLimitH}}</br>
         Txs: {{.BlockNumTxs}} Total: {{.AllNumTxs}} </p>
     </div>
     <div class="w3-responsive w3-card-4">

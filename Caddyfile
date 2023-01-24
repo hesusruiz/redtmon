@@ -12,7 +12,7 @@ route /ws {
         # Ideally, this is a node running in the same machine, for security and performance reasons,
         # but it could be remote. However, take into account that there is no authentication unless you
         # configure it explicitly with whatever mechanism you want.
-        redtnode "ws://127.0.0.1:22001"
+        redtnode "ws://15.236.0.91:22001"
 }
 
 # The standard Caddy file server, serving (at least) the index.html file from the site directory

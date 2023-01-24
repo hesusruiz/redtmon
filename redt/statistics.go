@@ -7,6 +7,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	ethertypes "github.com/ethereum/go-ethereum/core/types"
 	"github.com/rs/zerolog/log"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 )
 
 type StatisticsRedT struct {
@@ -234,6 +236,8 @@ type StatisticsSummary struct {
 	NextProposerName string
 	GasLimit         uint64
 	GasUsed          uint64
+	GasLimitH        string
+	GasUsedH         string
 	BlockNumTxs      int
 	AllNumTxs        int
 	Signers          []SignersTable
@@ -330,6 +334,7 @@ func (st *StatisticsRedT) StatisticsForHeaderNew(header *ethertypes.Header) *Sta
 
 // StatisticsForFullBlock returns a map with statistical data prepared for HTML templates
 func (st *StatisticsRedT) StatisticsForFullBlock(fullBlock *ethertypes.Block) *StatisticsSummary {
+	fmt2 := message.NewPrinter(language.EuropeanSpanish)
 	data := &StatisticsSummary{}
 
 	// Get the header
@@ -366,6 +371,8 @@ func (st *StatisticsRedT) StatisticsForFullBlock(fullBlock *ethertypes.Block) *S
 	data.GasUsed = header.GasUsed
 	data.BlockNumTxs = fullBlock.Transactions().Len()
 	data.AllNumTxs = st.allTxsCount
+	data.GasLimitH = fmt2.Sprintf("%d", header.GasLimit)
+	data.GasUsedH = fmt2.Sprintf("%d", header.GasUsed)
 
 	// Create the map with signers of this block
 	var currentSigners = map[common.Address]bool{}
