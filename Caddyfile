@@ -1,6 +1,12 @@
+{
+        http_port 8080
+
+}
+
 # This is a standard Caddyfile with the exception of the redtnode directive, specified
 # in a route block. You can use any Caddy feature that you want.
-localhost
+localhost:8080
+
 
 # Set this path to your site's directory.
 root * www
@@ -14,6 +20,11 @@ route /ws {
         # configure it explicitly with whatever mechanism you want.
         redtnode "ws://127.0.0.1:22001"
 }
+
+route /did-registry/v3/identifiers/* {
+        uniresolver "http://127.0.0.1:22000"
+}
+
 
 # The standard Caddy file server, serving (at least) the index.html file from the site directory
 file_server

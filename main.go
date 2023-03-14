@@ -34,6 +34,7 @@ import (
 	// plug in Caddy modules here
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
 	_ "github.com/hesusruiz/redtmon/monredt"
+	_ "github.com/hesusruiz/redtmon/uniresolver"
 )
 
 func main() {

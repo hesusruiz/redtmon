@@ -1,9 +1,13 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/hesusruiz/redtmon/redt"
 )
 
@@ -31,5 +35,20 @@ func main() {
 		info := rt.ValidatorInfo(j)
 		fmt.Printf("%v -> %v\n", info.Address, info.Operator)
 	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	txHash := common.HexToHash("0xd5402b7ef13fe9749eead43923eb9a30c6f4694ca3a4e796007586d3957d22f3")
+	txReceipt, err := rt.EthClient().TransactionReceipt(ctx, txHash)
+	if err != nil {
+		panic(err)
+	}
+
+	out, err := json.MarshalIndent(txReceipt, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(out))
 
 }
